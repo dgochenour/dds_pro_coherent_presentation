@@ -74,6 +74,9 @@ XML" chapter in the RTI Connext DDS Core Libraries User's Manual.
                 <subscription_name>
                     <name>exampleDataReader</name>
                 </subscription_name>
+                <history>
+                    <depth>10</depth>
+                </history>
             </datareader_qos>
 
             <publisher_qos>
@@ -89,7 +92,7 @@ XML" chapter in the RTI Connext DDS Core Libraries User's Manual.
                     <coherent_access>true</coherent_access>
                 </presentation>
             </subscriber_qos>
-                        
+
             <domain_participant_qos>
                 <!--
                 The participant name, if it is set, will be displayed in the
