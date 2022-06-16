@@ -84,17 +84,16 @@ void run_subscriber_application(unsigned int domain_id, unsigned int sample_coun
             domain_id,
             dds::core::QosProvider::Default().participant_qos("example_Library::example_Profile"));
 
-    dds::topic::Topic<MyType> topic(participant, "Example MyType");
+    dds::topic::Topic<MyType> topic(participant, example_topic_name);
 
-    dds::sub::Subscriber subscriber(participant);
+    dds::sub::Subscriber subscriber(participant, dds::core::QosProvider::Default().subscriber_qos("example_Library::example_Profile"));
 
-    // Notify of all statuses in the listener except for new data, which we handle
-    // in this thread with a WaitSet.
+    // Configure the status mask such that the DataReader's listener will handle
+    // all status changes *except* for on_data_available... we'll get notified
+    // of new samples via a ReadCondition instead.
     auto status_mask = dds::core::status::StatusMask::all()
-    & ~dds::core::status::StatusMask::data_available();
+            & ~dds::core::status::StatusMask::data_available();
 
-    // Create a DataReader, loading QoS profile from USER_QOS_PROFILES.xml, and
-    // using a listener for events.
     auto listener = std::make_shared<MyTypeDataReaderListener>();
     dds::sub::DataReader<MyType> reader(
             subscriber,

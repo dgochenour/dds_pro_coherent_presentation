@@ -53,8 +53,10 @@ void run_publisher_application(unsigned int domain_id, unsigned int sample_count
     dds::domain::DomainParticipant participant(
             domain_id,
             dds::core::QosProvider::Default().participant_qos("example_Library::example_Profile"));
-    dds::topic::Topic<MyType> topic(participant, "Example MyType");
-    dds::pub::Publisher publisher(participant);
+
+    dds::topic::Topic<MyType> topic(participant, example_topic_name);
+
+    dds::pub::Publisher publisher(participant, dds::core::QosProvider::Default().publisher_qos("example_Library::example_Profile"));
 
     // Enable the DataWriter statuses we want to be notified about 
     dds::core::status::StatusMask status_mask;
@@ -71,20 +73,24 @@ void run_publisher_application(unsigned int domain_id, unsigned int sample_count
             listener,
             status_mask);
 
-    MyType data;
-    for (unsigned int samples_written = 0;
-        !application::shutdown_requested && samples_written < sample_count;
-        samples_written++) {
+    MyType sample;
+    const int k_samples_per_set = 5;
+    int samples_written = 0;
+    while (!application::shutdown_requested && samples_written < sample_count) {
 
-        data.id(1); // simple, arbitrary number for the ID
-        data.value(static_cast<int32_t>(samples_written));
+        dds::pub::CoherentSet coherent_set(publisher);
 
-        std::cout << "Writing MyType, count " << samples_written << std::endl;
-
-        writer.write(data);
-
-        // Send every 1 second
-        rti::util::sleep(dds::core::Duration(1));
+        for (int i = 0; i < k_samples_per_set; i++) {
+            sample.id(1); // simple, arbitrary number for the ID
+            sample.value(samples_written);
+            std::cout << "Writing MyType, count " << samples_written << std::endl;
+            writer.write(sample);
+            samples_written++;
+            // Send every 1 second
+            rti::util::sleep(dds::core::Duration(1));
+        }
+        std::cout << "Ending set" << std::endl;
+        coherent_set.end();
     }
 }
 
@@ -111,7 +117,7 @@ int main(int argc, char *argv[])
         << std::endl;
         return EXIT_FAILURE;
     }
-    
+
     dds::domain::DomainParticipant::finalize_participant_factory();
     return EXIT_SUCCESS;
 }
