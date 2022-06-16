@@ -10,6 +10,8 @@
  * use or inability to use the software.
  */
 
+const string example_topic_name = "Coherent Presentation Example Topic";
+
 struct MyType {
     @key long id;
     long value;
