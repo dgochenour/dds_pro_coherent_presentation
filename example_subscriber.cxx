@@ -66,7 +66,9 @@ int process_data(dds::sub::DataReader<MyType> reader)
         if (sample.info().valid()) {
             count++;
             if (sample.info().extensions().coherent_set_info().is_set()) {
-                std::cout << sample.info().extensions().coherent_set_info().value().coherent_set_sequence_number() << std::endl;
+                std::cout << "INFO: coherent_set_sequence_number = " 
+                        << sample.info().extensions().coherent_set_info().value().coherent_set_sequence_number() 
+                        << std::endl;              
             }
             std::cout << sample.data() << std::endl;
         } else {
